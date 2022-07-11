@@ -15,7 +15,8 @@ class TestEstacionamentoMixin:
             desconto_diaria=45,
             entrada_noturna=timedelta(hours=19),
             saida_noturna=timedelta(hours=8),
-            valor_mensal=600
+            valor_mensal=600,
+            valor_evento=50
         )
 
 
@@ -83,12 +84,16 @@ class TestDiariaNoturna(TestCase, TestEstacionamentoMixin):
         self.assertEqual(actual, 54)
 
 
-class TestMensalista(TestCase, TestEstacionamentoMixin):
+class TestTipoAcesso(TestCase, TestEstacionamentoMixin):
 
     def setUp(self):
         self.defaultSetUp()
 
+    @parameterized.expand([
+        ("Mensalista", 600),
+        ("Evento", 50)
+    ])
     @pytest.mark.TesteFuncional
-    def test_mensalista(self):
-        actual = self.estacionamento.calcula_preco(tipo_acesso="Mensalista")
-        self.assertEqual(actual, 600)
+    def test_tipo_acesso(self, tipo_acesso, preco_total):
+        actual = self.estacionamento.calcula_preco(tipo_acesso=tipo_acesso)
+        self.assertEqual(actual, preco_total)

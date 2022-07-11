@@ -10,7 +10,8 @@ class Estacionamento:
             desconto_diaria=None,
             entrada_noturna=None,
             saida_noturna=None,
-            valor_mensal=None
+            valor_mensal=None,
+            valor_evento=None
         ):
         self.valor_fracao = valor_fracao
         self.desconto_hora_cheia = desconto_hora_cheia
@@ -19,6 +20,7 @@ class Estacionamento:
         self.entrada_noturna = entrada_noturna
         self.saida_noturna = saida_noturna
         self.valor_mensal = valor_mensal
+        self.valor_evento = valor_evento
         
     @property
     def hora_cheia_descontada(self):
@@ -27,6 +29,8 @@ class Estacionamento:
     def calcula_preco(self, hora_inicial=None, hora_final=None, tipo_acesso=""):
         if tipo_acesso == "Mensalista":
             return self.valor_mensal
+        if tipo_acesso == "Evento":
+            return self.valor_evento
 
         fracoes = ceil((hora_final - hora_inicial).seconds / (60 * 15))
 
