@@ -52,3 +52,8 @@ class TestDiariaDiurna(TestCase):
     def test_diaria_diurna_um(self):
         actual = self.estacionamento.calcula_preco(timedelta(hours=8, minutes=30), timedelta(hours=18, minutes=30))
         self.assertEqual(actual, 120)
+
+    @pytest.mark.TesteFuncional
+    def test_diaria_diurna_dois(self):
+        actual = self.estacionamento.calcula_preco(timedelta(hours=6), timedelta(hours=15, minutes=1))
+        self.assertEqual(actual, 120)
