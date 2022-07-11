@@ -48,12 +48,12 @@ class TestDiariaDiurna(TestCase):
             diaria_diurna=120
         )
 
+    @parameterized.expand([
+        (timedelta(hours=8, minutes=30), timedelta(hours=18, minutes=30)),
+        (timedelta(hours=6), timedelta(hours=15, minutes=1)),
+        (timedelta(hours=9, minutes=15), timedelta(hours=19, minutes=30))
+    ])
     @pytest.mark.TesteFuncional
-    def test_diaria_diurna_um(self):
-        actual = self.estacionamento.calcula_preco(timedelta(hours=8, minutes=30), timedelta(hours=18, minutes=30))
-        self.assertEqual(actual, 120)
-
-    @pytest.mark.TesteFuncional
-    def test_diaria_diurna_dois(self):
-        actual = self.estacionamento.calcula_preco(timedelta(hours=6), timedelta(hours=15, minutes=1))
+    def test_diaria_diurna(self, hora_entrada, hora_saida):
+        actual = self.estacionamento.calcula_preco(hora_entrada, hora_saida)
         self.assertEqual(actual, 120)
