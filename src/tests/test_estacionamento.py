@@ -6,11 +6,21 @@ from parameterized import parameterized
 
 from classes.estacionamento import Estacionamento
 
+class TestEstacionamentoMixin:
+    def defaultSetUp(self):
+        self.estacionamento = Estacionamento(
+            valor_fracao=30,
+            desconto_hora_cheia=15,
+            diaria_diurna=120,
+            entrada_noturna=timedelta(hours=19),
+            saida_noturna=timedelta(hours=8)
+        )
 
-class TestFacaoQuinze(TestCase):
+
+class TestFacaoQuinze(TestCase, TestEstacionamentoMixin):
     
     def setUp(self):
-        self.estacionamento = Estacionamento(valor_fracao=30)
+        self.defaultSetUp()
 
     @parameterized.expand([
         (timedelta(hours=8, minutes=30), timedelta(hours=8, minutes=56), 60),
@@ -23,12 +33,10 @@ class TestFacaoQuinze(TestCase):
         self.assertEqual(actual, preco_total)
 
 
-class TestHoraCheia(TestCase):
+class TestHoraCheia(TestCase, TestEstacionamentoMixin):
 
     def setUp(self):
-        self.estacionamento = Estacionamento(
-            valor_fracao=30, desconto_hora_cheia=15
-        )
+        self.defaultSetUp()
 
     @parameterized.expand([
         (timedelta(hours=8, minutes=30), timedelta(hours=9, minutes=30), 102),
@@ -41,12 +49,10 @@ class TestHoraCheia(TestCase):
         self.assertEqual(actual, preco_total)
 
 
-class TestDiariaDiurna(TestCase):
+class TestDiariaDiurna(TestCase, TestEstacionamentoMixin):
 
     def setUp(self):
-        self.estacionamento = Estacionamento(
-            diaria_diurna=120
-        )
+        self.defaultSetUp()
 
     @parameterized.expand([
         (timedelta(hours=8, minutes=30), timedelta(hours=18, minutes=30)),
@@ -57,3 +63,15 @@ class TestDiariaDiurna(TestCase):
     def test_diaria_diurna(self, hora_entrada, hora_saida):
         actual = self.estacionamento.calcula_preco(hora_entrada, hora_saida)
         self.assertEqual(actual, 120)
+
+
+class TestDiariaNoturna(TestCase, TestEstacionamentoMixin):
+
+    def setUp(self):
+        self.defaultSetUp()
+    
+    @pytest.mark.TesteFuncional
+    def test_diaria_noturna_um(self):
+        actual = self.estacionamento.calcula_preco(timedelta(hours=20), timedelta(hours=7))
+        self.assertEqual(actual, 54)
+    
