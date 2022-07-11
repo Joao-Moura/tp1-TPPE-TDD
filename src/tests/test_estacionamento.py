@@ -14,7 +14,8 @@ class TestEstacionamentoMixin:
             diaria_diurna=120,
             desconto_diaria=45,
             entrada_noturna=timedelta(hours=19),
-            saida_noturna=timedelta(hours=8)
+            saida_noturna=timedelta(hours=8),
+            valor_mensal=600
         )
 
 
@@ -80,3 +81,14 @@ class TestDiariaNoturna(TestCase, TestEstacionamentoMixin):
     def test_diaria_noturna_um(self, hora_entrada, hora_saida):
         actual = self.estacionamento.calcula_preco(hora_entrada, hora_saida)
         self.assertEqual(actual, 54)
+
+
+class TestMensalista(TestCase, TestEstacionamentoMixin):
+
+    def setUp(self):
+        self.defaultSetUp()
+
+    @pytest.mark.TesteFuncional
+    def test_mensalista(self):
+        actual = self.estacionamento.calcula_preco(tipo_acesso="Mensalista")
+        self.assertEqual(actual, 600)
