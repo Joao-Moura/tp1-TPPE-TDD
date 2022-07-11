@@ -27,7 +27,7 @@ class Estacionamento:
         fracoes = ceil((hora_final - hora_inicial).seconds / (60 * 15))
 
         if hora_inicial > self.entrada_noturna and hora_final < self.saida_noturna:
-            return 54
+            return self.diaria_diurna * (self.desconto_diaria / 100)
         if fracoes > 36:
             return self.diaria_diurna
         if fracoes >= 4:
