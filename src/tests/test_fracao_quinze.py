@@ -34,3 +34,8 @@ class TestHoraCheia(TestCase):
     def test_cadastra_hora_cheia_um(self):
         actual = self.estacionamento.calcula_preco(timedelta(hours=8, minutes=30), timedelta(hours=9, minutes=30))
         self.assertEqual(actual, 102)
+
+    @pytest.mark.TesteFuncional
+    def test_cadastra_hora_cheia_dois(self):
+        actual = self.estacionamento.calcula_preco(timedelta(hours=8, minutes=30), timedelta(hours=10, minutes=30))
+        self.assertEqual(actual, 204)

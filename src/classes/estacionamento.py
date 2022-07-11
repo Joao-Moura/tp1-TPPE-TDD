@@ -10,6 +10,6 @@ class Estacionamento:
         fracoes = ceil((hora_final - hora_inicial).seconds / (60 * 15))
 
         if fracoes >= 4:
-            return 102
+            return self.valor_fracao * fracoes * ((100 - self.desconto_hora_cheia) / 100)
 
         return fracoes * self.valor_fracao
