@@ -71,16 +71,12 @@ class TestDiariaNoturna(TestCase, TestEstacionamentoMixin):
     def setUp(self):
         self.defaultSetUp()
     
+    @parameterized.expand([
+        (timedelta(hours=20), timedelta(hours=7)),
+        (timedelta(hours=19, seconds=1), timedelta(hours=7, minutes=59, seconds=59)),
+        (timedelta(hours=23, minutes=15), timedelta(hours=23, minutes=30))
+    ])
     @pytest.mark.TesteFuncional
-    def test_diaria_noturna_um(self):
-        actual = self.estacionamento.calcula_preco(timedelta(hours=20), timedelta(hours=7))
+    def test_diaria_noturna_um(self, hora_entrada, hora_saida):
+        actual = self.estacionamento.calcula_preco(hora_entrada, hora_saida)
         self.assertEqual(actual, 54)
-
-    @pytest.mark.TesteFuncional
-    def test_diaria_noturna_dois(self):
-        actual = self.estacionamento.calcula_preco(
-            timedelta(hours=19, seconds=1),
-            timedelta(hours=7, minutes=59, seconds=59)
-        )
-        self.assertEqual(actual, 54)
-    

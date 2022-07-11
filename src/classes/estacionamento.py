@@ -26,7 +26,7 @@ class Estacionamento:
     def calcula_preco(self, hora_inicial, hora_final):
         fracoes = ceil((hora_final - hora_inicial).seconds / (60 * 15))
 
-        if hora_inicial > self.entrada_noturna and hora_final < self.saida_noturna:
+        if hora_inicial > self.entrada_noturna and (hora_final < self.saida_noturna or hora_final > self.entrada_noturna):
             return self.diaria_diurna * (self.desconto_diaria / 100)
         if fracoes > 36:
             return self.diaria_diurna
