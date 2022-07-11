@@ -21,3 +21,16 @@ class TestFacaoQuinze(TestCase):
     def test_cadastro_fracao(self, hora_entrada, hora_saida, preco_total):
         actual = self.estacionamento.calcula_preco(hora_entrada, hora_saida)
         self.assertEqual(actual, preco_total)
+
+
+class TestHoraCheia(TestCase):
+
+    def setUp(self):
+        self.estacionamento = Estacionamento(
+            valor_fracao=30, desconto_hora_cheia=15
+        )
+
+    @pytest.mark.TesteFuncional
+    def test_cadastra_hora_cheia_um(self):
+        actual = self.estacionamento.calcula_preco(timedelta(hours=8, minutes=30), timedelta(hours=9, minutes=30))
+        self.assertEqual(actual, 102)
