@@ -20,7 +20,7 @@ class TestEstacionamentoMixin:
         )
 
 
-class TestFacaoQuinze(TestCase, TestEstacionamentoMixin):
+class TestFracaoQuinze(TestCase, TestEstacionamentoMixin):
     
     def setUp(self):
         self.defaultSetUp()
@@ -97,3 +97,16 @@ class TestTipoAcesso(TestCase, TestEstacionamentoMixin):
     def test_tipo_acesso(self, tipo_acesso, preco_total):
         actual = self.estacionamento.calcula_preco(tipo_acesso=tipo_acesso)
         self.assertEqual(actual, preco_total)
+
+
+class TestValorContratante(TestCase, TestEstacionamentoMixin):
+
+    def setUp(self):
+        self.defaultSetUp()
+
+    @pytest.mark.TesteFuncional
+    def test_calcula_retorno_com_multiplos_acessos_um(self):
+        self.estacionamento.calcula_preco(tipo_acesso="Evento")
+        self.estacionamento.calcula_preco(timedelta(hours=8, minutes=30), timedelta(hours=18, minutes=30))
+        self.estacionamento.calcula_preco(timedelta(hours=8, minutes=30), timedelta(hours=9))
+        self.assertEqual(160, self.estacionamento.retorno_contratante)
