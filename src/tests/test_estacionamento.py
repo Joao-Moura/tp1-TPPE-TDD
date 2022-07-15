@@ -108,5 +108,13 @@ class TestValorContratante(TestCase, TestEstacionamentoMixin):
     def test_calcula_retorno_com_multiplos_acessos_um(self):
         self.estacionamento.calcula_preco(tipo_acesso="Evento")
         self.estacionamento.calcula_preco(timedelta(hours=8, minutes=30), timedelta(hours=18, minutes=30))
-        self.estacionamento.calcula_preco(timedelta(hours=8, minutes=30), timedelta(hours=9))
-        self.assertEqual(160, self.estacionamento.retorno_contratante)
+        self.estacionamento.calcula_preco(timedelta(hours=8, minutes=30), timedelta(hours=9, minutes=10))
+        self.assertEqual(130, self.estacionamento.retorno_contratante)
+
+    @pytest.mark.TesteFuncional
+    def test_calcula_retorno_com_multiplos_acessos_dois(self):
+        self.estacionamento.calcula_preco(timedelta(hours=20), timedelta(hours=7))
+        self.estacionamento.calcula_preco(timedelta(hours=8, minutes=30), timedelta(hours=10, minutes=30))
+        self.estacionamento.calcula_preco(tipo_acesso="Mensalista")
+        self.estacionamento.calcula_preco(timedelta(hours=8, minutes=30), timedelta(hours=9, minutes=30))
+        self.assertEqual(480, self.estacionamento.retorno_contratante)

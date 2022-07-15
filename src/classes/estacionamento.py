@@ -22,7 +22,7 @@ class Estacionamento:
         self.valor_mensal = valor_mensal
         self.valor_evento = valor_evento
 
-        self.retorno_contratante = 160
+        self.retorno_contratante = 0
 
     @property
     def hora_cheia_descontada(self):
@@ -47,4 +47,5 @@ class Estacionamento:
             else:
                 valor_estacionamento = fracoes * self.valor_fracao
 
+        self.retorno_contratante += (valor_estacionamento * 0.5)
         return valor_estacionamento
