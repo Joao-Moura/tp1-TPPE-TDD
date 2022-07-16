@@ -5,10 +5,13 @@ from unittest import TestCase
 from parameterized import parameterized
 
 from classes.estacionamento import Estacionamento
+from tests.factory import EstacionamentoFactory
+
 
 class TestEstacionamentoMixin:
     def defaultSetUp(self):
         self.estacionamento = Estacionamento(
+            porcentagem_contratante=50,
             valor_fracao=30,
             desconto_hora_cheia=15,
             diaria_diurna=120,
@@ -103,18 +106,15 @@ class TestValorContratante(TestCase, TestEstacionamentoMixin):
 
     def setUp(self):
         self.defaultSetUp()
+        self.factory = EstacionamentoFactory(self.estacionamento)
 
+    @parameterized.expand([
+        ([('acesso', "Evento"), ('hora', '08:30', '18:30'), ('hora', '08:30', '09:10')], 130),
+        ([('hora', '20:00', '07:00'), ('hora', '08:30', '10:30'), ('acesso', "Mensalista"), ('hora', '08:30', '09:30')], 480),
+        ([('acesso', "Mensalista"), ('acesso', "Evento")], 325)
+    ])
     @pytest.mark.TesteFuncional
-    def test_calcula_retorno_com_multiplos_acessos_um(self):
-        self.estacionamento.calcula_preco(tipo_acesso="Evento")
-        self.estacionamento.calcula_preco(timedelta(hours=8, minutes=30), timedelta(hours=18, minutes=30))
-        self.estacionamento.calcula_preco(timedelta(hours=8, minutes=30), timedelta(hours=9, minutes=10))
-        self.assertEqual(130, self.estacionamento.retorno_contratante)
-
-    @pytest.mark.TesteFuncional
-    def test_calcula_retorno_com_multiplos_acessos_dois(self):
-        self.estacionamento.calcula_preco(timedelta(hours=20), timedelta(hours=7))
-        self.estacionamento.calcula_preco(timedelta(hours=8, minutes=30), timedelta(hours=10, minutes=30))
-        self.estacionamento.calcula_preco(tipo_acesso="Mensalista")
-        self.estacionamento.calcula_preco(timedelta(hours=8, minutes=30), timedelta(hours=9, minutes=30))
-        self.assertEqual(480, self.estacionamento.retorno_contratante)
+    def test_calcula_retorno_com_multiplos_acessos(self, acessos, expected):
+        for acesso in acessos:
+            getattr(self.factory, f'cria_por_{acesso[0]}')(*acesso[1:])
+        self.assertEqual(expected, self.estacionamento.retorno_contratante)

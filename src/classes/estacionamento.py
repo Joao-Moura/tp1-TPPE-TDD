@@ -4,6 +4,7 @@ from math import ceil
 class Estacionamento:
     def __init__(
             self,
+            porcentagem_contratante,
             valor_fracao=None, 
             desconto_hora_cheia=None,
             diaria_diurna=None,
@@ -22,6 +23,7 @@ class Estacionamento:
         self.valor_mensal = valor_mensal
         self.valor_evento = valor_evento
 
+        self.porcentagem_contratante = porcentagem_contratante
         self.retorno_contratante = 0
 
     @property
@@ -47,5 +49,5 @@ class Estacionamento:
             else:
                 valor_estacionamento = fracoes * self.valor_fracao
 
-        self.retorno_contratante += (valor_estacionamento * 0.5)
+        self.retorno_contratante += (valor_estacionamento * (self.porcentagem_contratante / 100))
         return valor_estacionamento
