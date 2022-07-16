@@ -120,3 +120,51 @@ class TestValorContratante(TestCase, TestEstacionamentoMixin):
         for entrada in entradas:
             getattr(self.factory, f'cria_por_{entrada[0]}')(*entrada[1:])
         self.assertEqual(expected, self.estacionamento.retorno_contratante)
+
+
+class TestValidacoesEstacionamento(TestCase, TestEstacionamentoMixin):
+
+    def setUp(self):
+        self.defaultSetUp()
+        self.factory.cria_por_hora('18:20', '23:05')  # 4h e 45 min = 498
+        self.factory.cria_por_hora('08:30', '13:53')  # 5h e 23 min = 570
+    
+    @parameterized.expand([
+        (3, [('acesso', "Mensalista")], 834),  # mensalista = 600
+        (3, [('hora', '09:10', '10:15')], 600),  # 1h e 5 min = 132
+        (2, [('hora', '14:00', '14:15'), ('hora', '14:15', '14:30')], 564),  # 15 min / 15 min = 60
+        (2, [('hora', '14:00', '14:15'), ('hora', '14:15', '14:30')], 564, {'placa': 'AS251'}),  # 15 min / 15 min = 60 (mesmo carro)
+    ])
+    @pytest.mark.TesteExcecao
+    def test_valido_estacionamento_nao_lotado(self, max_vagas, entradas, expected, args={}):
+        self.estacionamento.capacidade = max_vagas
+        for arg, val in args.items():
+            setattr(self.factory, arg, val)
+
+        for entrada in entradas:
+            getattr(self.factory, f'cria_por_{entrada[0]}')(*entrada[1:])
+        self.assertEqual(expected, self.estacionamento.retorno_contratante)
+
+    @parameterized.expand([
+        (2, [('acesso', "Mensalista")]),
+        (2, [('hora', '09:10', '10:15')]),
+        (2, [('hora', '14:00', '14:15'), ('hora', '14:02', '14:30')]),
+        (3, [('hora', '08:36', '19:10'), ('hora', '13:00', '14:30')]),
+        (2, [('hora', '14:00', '14:15'), ('hora', '14:10', '14:30')], {'placa': 'AS251'}),  # (mesmo carro)
+    ])
+    @pytest.mark.TesteExcecao
+    def test_invalido_estacionamento_lotado(self, max_vagas, entradas, args={}):
+        self.estacionamento.capacidade = max_vagas
+        for arg, val in args.items():
+            setattr(self.factory, arg, val)
+
+        with self.assertRaises(VagaInvalidaException) as e:
+            for entrada in entradas:
+                getattr(self.factory, f'cria_por_{entrada[0]}')(*entrada[1:])
+        
+        if args:
+            self.assertIn(
+                f'Veículo com placa {args["placa"]} já se encontra no estacionamento.',
+                e.exception.args[0])
+        else:
+            self.assertIn('Estacionamento lotado', e.exception.args[0])

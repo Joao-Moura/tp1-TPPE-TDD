@@ -1,0 +1,2 @@
+class VagaInvalidaException(AssertionError):
+    pass
