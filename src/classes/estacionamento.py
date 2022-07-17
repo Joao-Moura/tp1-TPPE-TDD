@@ -29,9 +29,23 @@ class Estacionamento:
             'valor_mensal': valor_mensal,
             'valor_evento': valor_evento
         })
+
         if args_branco_estacionamento:
             raise DescricaoEmBrancoException(f'O(s) seguinte(s) argumento(s) está(ão) em branco: {args_branco_estacionamento}.')
 
+        args_negativos = self.valida_argumento_positivos({
+            'porcentagem_contratante': porcentagem_contratante,
+            'capacidade': capacidade,
+            'valor_fracao': valor_fracao, 
+            'desconto_hora_cheia': desconto_hora_cheia,
+            'diaria_diurna': diaria_diurna,
+            'desconto_diaria': desconto_diaria,
+            'valor_mensal': valor_mensal,
+            'valor_evento': valor_evento
+        })
+        if args_negativos:
+            raise ValorAcessoInvalidoException(f'Não pode haver valores de acesso inválidos, existem alguns negativos: {args_negativos}')
+        
         self.valor_fracao = valor_fracao
         self.desconto_hora_cheia = desconto_hora_cheia
         self.diaria_diurna = diaria_diurna
@@ -61,6 +75,13 @@ class Estacionamento:
         invalidArgs=[]
         for arg, val in args.items():
             if not val:
+                invalidArgs.append(arg)
+        return invalidArgs
+
+    def valida_argumento_positivos(self, args={}):
+        invalidArgs=[]
+        for arg, val in args.items():
+            if val < 0:
                 invalidArgs.append(arg)
         return invalidArgs
 

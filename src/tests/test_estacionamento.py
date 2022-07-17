@@ -231,3 +231,48 @@ class TestValidacoesEstacionamento(TestCase, TestEstacionamentoMixin):
             )
         
         self.assertIn(f'O(s) seguinte(s) argumento(s) está(ão) em branco: [{exc}]', e.exception.args[0])
+
+    @parameterized.expand([
+        (-1, 10, 30, 15, 120, 45, timedelta(hours=19), timedelta(hours=8), 600, 500, '\'porcentagem_contratante\''),
+        (50, -1, 30, 15, 120, 45, timedelta(hours=19), timedelta(hours=8), 600, 500, '\'capacidade\''),
+        (50, 10, -1, 15, 120, 45, timedelta(hours=19), timedelta(hours=8), 600, 500, '\'valor_fracao\''),
+        (50, 10, 30, -1, 120, 45, timedelta(hours=19), timedelta(hours=8), 600, 500, '\'desconto_hora_cheia\''),
+        (50, 10, 30, 15, -1, 45, timedelta(hours=19), timedelta(hours=8), 600, 500, '\'diaria_diurna\''),
+        (50, 10, 30, 15, 120, -1, timedelta(hours=19), timedelta(hours=8), 600, 500, '\'desconto_diaria\''),
+        (50, 10, 30, 15, 120, 45, timedelta(hours=19), timedelta(hours=8), -1, 500, '\'valor_mensal\''),
+        (50, 10, 30, 15, 120, 45, timedelta(hours=19), timedelta(hours=8), 600, -1, '\'valor_evento\''),
+        (-1, 10, 30, 15, -1, 45, timedelta(hours=19), timedelta(hours=8), 600, -1, '\'porcentagem_contratante\', \'diaria_diurna\', \'valor_evento\''),
+
+    ])
+    @pytest.mark.TesteExcecao
+    def test_valor_acesso_invalido_estacionamento(
+        self,             
+        porcentagem_contratante,
+        capacidade,
+        valor_fracao,
+        desconto_hora_cheia,
+        diaria_diurna,
+        desconto_diaria,
+        entrada_noturna,
+        saida_noturna,
+        valor_mensal,
+        valor_evento,
+        exc
+    ):
+        
+        with self.assertRaises(ValorAcessoInvalidoException) as e:
+            Estacionamento(
+                porcentagem_contratante,
+                capacidade,
+                valor_fracao,
+                desconto_hora_cheia,
+                diaria_diurna,
+                desconto_diaria,
+                entrada_noturna,
+                saida_noturna,
+                valor_mensal,
+                valor_evento
+            )
+        
+        self.assertIn(f'Não pode haver valores de acesso inválidos, existem alguns negativos: [{exc}]', e.exception.args[0])
+

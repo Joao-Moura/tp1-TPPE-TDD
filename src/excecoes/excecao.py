@@ -3,3 +3,6 @@ class VagaInvalidaException(AssertionError):
 
 class DescricaoEmBrancoException(AssertionError):
     pass
+
+class ValorAcessoInvalidoException(AssertionError):
+    pass
