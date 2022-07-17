@@ -42,8 +42,20 @@ class Estacionamento:
         # NOTE: Função que ordena todos os carros estacionados (por hora) pelo seu horário de saida
         return sorted(filter(lambda v: True if v[1][0] == 'H' else False, self.estacionados.items()), key=lambda v: v[1][2])
 
+    def existe_argumentos_em_branco(self, args={}):
+        invalidArgs=[]
+        for arg, val in args.items():
+            if not val:
+                invalidArgs.append(arg)
+        return invalidArgs
+
     def calcula_preco(self, placa=None, hora_inicial=None, hora_final=None, tipo_acesso=""):
         valor_estacionamento = 0
+
+        args_branco = self.existe_argumentos_em_branco({'placa':placa, 'hora_inicial':hora_inicial, 'hora_final':hora_final})
+        # Levanta exceção caso tenha algum placa, hora_inicial ou hora_final não preenchidos
+        if args_branco and not tipo_acesso:
+            raise DescricaoEmBrancoException(f'O(s) seguinte(s) argumento(s) está(ão) em branco: {args_branco}.')
 
         # NOTE: Se o carro já estiver estacionado e seu tipo for de acesso
         # ou se seus horários colidirem, levanta exceção

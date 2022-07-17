@@ -168,3 +168,21 @@ class TestValidacoesEstacionamento(TestCase, TestEstacionamentoMixin):
                 e.exception.args[0])
         else:
             self.assertIn('Estacionamento lotado', e.exception.args[0])
+
+    @parameterized.expand([
+        (None, '16:30', '18:30', None, '\'placa\''),
+        ('MA157', None, '14:30', None, '\'hora_inicial\''),
+        ('LS178', '11:15', None, None, '\'hora_final\''),
+        (None, None, None, None, '\'placa\', \'hora_inicial\', \'hora_final\''),
+    ])
+    @pytest.mark.TesteExcecao
+    def test_descricao_em_branco_dados_acesso(self, placa, hora_inicial, hora_final, tipo_acesso, exc):
+        if hora_inicial:
+            hora_inicial = self.factory._str2time(hora_inicial)
+        if hora_final:
+            hora_final = self.factory._str2time(hora_final)
+        
+        with self.assertRaises(DescricaoEmBrancoException) as e:
+            self.estacionamento.calcula_preco(placa, hora_inicial, hora_final, tipo_acesso)
+        
+        self.assertIn(f'O(s) seguinte(s) argumento(s) está(ão) em branco: [{exc}]', e.exception.args[0])
