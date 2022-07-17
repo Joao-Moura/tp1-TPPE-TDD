@@ -17,6 +17,21 @@ class Estacionamento:
             valor_mensal=None,
             valor_evento=None
         ):
+        args_branco_estacionamento = self.existe_argumentos_em_branco({
+            'porcentagem_contratante': porcentagem_contratante,
+            'capacidade': capacidade,
+            'valor_fracao': valor_fracao, 
+            'desconto_hora_cheia': desconto_hora_cheia,
+            'diaria_diurna': diaria_diurna,
+            'desconto_diaria': desconto_diaria,
+            'entrada_noturna': entrada_noturna,
+            'saida_noturna': saida_noturna,
+            'valor_mensal': valor_mensal,
+            'valor_evento': valor_evento
+        })
+        if args_branco_estacionamento:
+            raise DescricaoEmBrancoException(f'O(s) seguinte(s) argumento(s) está(ão) em branco: {args_branco_estacionamento}.')
+
         self.valor_fracao = valor_fracao
         self.desconto_hora_cheia = desconto_hora_cheia
         self.diaria_diurna = diaria_diurna

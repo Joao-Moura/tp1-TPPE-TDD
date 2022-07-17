@@ -186,3 +186,48 @@ class TestValidacoesEstacionamento(TestCase, TestEstacionamentoMixin):
             self.estacionamento.calcula_preco(placa, hora_inicial, hora_final, tipo_acesso)
         
         self.assertIn(f'O(s) seguinte(s) argumento(s) está(ão) em branco: [{exc}]', e.exception.args[0])
+
+    @parameterized.expand([
+        (None, 10, 30, 15, 120, 45, timedelta(hours=19), timedelta(hours=8), 600, 500, '\'porcentagem_contratante\''),
+        (50, None, 30, 15, 120, 45, timedelta(hours=19), timedelta(hours=8), 600, 500, '\'capacidade\''),
+        (50, 10, None, 15, 120, 45, timedelta(hours=19), timedelta(hours=8), 600, 500, '\'valor_fracao\''),
+        (50, 10, 30, None, 120, 45, timedelta(hours=19), timedelta(hours=8), 600, 500, '\'desconto_hora_cheia\''),
+        (50, 10, 30, 15, None, 45, timedelta(hours=19), timedelta(hours=8), 600, 500, '\'diaria_diurna\''),
+        (50, 10, 30, 15, 120, None, timedelta(hours=19), timedelta(hours=8), 600, 500, '\'desconto_diaria\''),
+        (50, 10, 30, 15, 120, 45, None, timedelta(hours=8), 600, 500, '\'entrada_noturna\''),
+        (50, 10, 30, 15, 120, 45, timedelta(hours=19), None, 600, 500, '\'saida_noturna\''),
+        (50, 10, 30, 15, 120, 45, timedelta(hours=19), timedelta(hours=8), None, 500, '\'valor_mensal\''),
+        (50, 10, 30, 15, 120, 45, timedelta(hours=19), timedelta(hours=8), 600, None, '\'valor_evento\''),
+        (None, 10, 30, 15, None, 45, timedelta(hours=19), timedelta(hours=8), 600, None, '\'porcentagem_contratante\', \'diaria_diurna\', \'valor_evento\''),
+    ])
+    @pytest.mark.TesteExcecao
+    def test_descricao_em_branco_estacionamento(
+        self,             
+        porcentagem_contratante,
+        capacidade,
+        valor_fracao,
+        desconto_hora_cheia,
+        diaria_diurna,
+        desconto_diaria,
+        entrada_noturna,
+        saida_noturna,
+        valor_mensal,
+        valor_evento,
+        exc
+    ):
+        
+        with self.assertRaises(DescricaoEmBrancoException) as e:
+            Estacionamento(
+                porcentagem_contratante,
+                capacidade,
+                valor_fracao,
+                desconto_hora_cheia,
+                diaria_diurna,
+                desconto_diaria,
+                entrada_noturna,
+                saida_noturna,
+                valor_mensal,
+                valor_evento
+            )
+        
+        self.assertIn(f'O(s) seguinte(s) argumento(s) está(ão) em branco: [{exc}]', e.exception.args[0])
