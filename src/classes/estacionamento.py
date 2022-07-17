@@ -17,6 +17,7 @@ class Estacionamento:
             valor_mensal=None,
             valor_evento=None
         ):
+
         args_branco_estacionamento = self.existe_argumentos_em_branco({
             'porcentagem_contratante': porcentagem_contratante,
             'capacidade': capacidade,
@@ -88,10 +89,14 @@ class Estacionamento:
     def calcula_preco(self, placa=None, hora_inicial=None, hora_final=None, tipo_acesso=""):
         valor_estacionamento = 0
 
+        # NOTE: Levanta exceção caso tenha algum placa, hora_inicial ou hora_final não preenchidos
         args_branco = self.existe_argumentos_em_branco({'placa':placa, 'hora_inicial':hora_inicial, 'hora_final':hora_final})
-        # Levanta exceção caso tenha algum placa, hora_inicial ou hora_final não preenchidos
         if args_branco and not tipo_acesso:
             raise DescricaoEmBrancoException(f'O(s) seguinte(s) argumento(s) está(ão) em branco: {args_branco}.')
+
+        # NOTE: Levanta exceção, caso sejam preenchidos as horas e o tipo de acesso
+        if hora_inicial and hora_inicial and tipo_acesso:
+            raise MultiplosArgumentosException('Impossível utilizar tipo de acesso em conjunto com horas.')
 
         # NOTE: Se o carro já estiver estacionado e seu tipo for de acesso
         # ou se seus horários colidirem, levanta exceção

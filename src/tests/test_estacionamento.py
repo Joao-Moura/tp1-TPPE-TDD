@@ -187,6 +187,13 @@ class TestValidacoesEstacionamento(TestCase, TestEstacionamentoMixin):
         
         self.assertIn(f'O(s) seguinte(s) argumento(s) está(ão) em branco: [{exc}]', e.exception.args[0])
 
+    @pytest.mark.TesteExcecao
+    def test_multiplos_dados_acesso(self):
+        with self.assertRaises(MultiplosArgumentosException) as e:
+            self.estacionamento.calcula_preco('MFQ3A', self.factory._str2time("10:30"), self.factory._str2time("11:30"), "Mensalista")
+        
+        self.assertIn('Impossível utilizar tipo de acesso em conjunto com horas.', e.exception.args[0])
+
     @parameterized.expand([
         (None, 10, 30, 15, 120, 45, timedelta(hours=19), timedelta(hours=8), 600, 500, '\'porcentagem_contratante\''),
         (50, None, 30, 15, 120, 45, timedelta(hours=19), timedelta(hours=8), 600, 500, '\'capacidade\''),
@@ -242,7 +249,6 @@ class TestValidacoesEstacionamento(TestCase, TestEstacionamentoMixin):
         (50, 10, 30, 15, 120, 45, timedelta(hours=19), timedelta(hours=8), -1, 500, '\'valor_mensal\''),
         (50, 10, 30, 15, 120, 45, timedelta(hours=19), timedelta(hours=8), 600, -1, '\'valor_evento\''),
         (-1, 10, 30, 15, -1, 45, timedelta(hours=19), timedelta(hours=8), 600, -1, '\'porcentagem_contratante\', \'diaria_diurna\', \'valor_evento\''),
-
     ])
     @pytest.mark.TesteExcecao
     def test_valor_acesso_invalido_estacionamento(
@@ -275,4 +281,3 @@ class TestValidacoesEstacionamento(TestCase, TestEstacionamentoMixin):
             )
         
         self.assertIn(f'Não pode haver valores de acesso inválidos, existem alguns negativos: [{exc}]', e.exception.args[0])
-
