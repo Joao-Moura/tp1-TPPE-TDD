@@ -115,23 +115,24 @@ class Estacionamento:
         self.estacionados[placa] = ('A', tipo_acesso) if tipo_acesso else ('H', hora_inicial, hora_final)
 
         if tipo_acesso:
-            # NOTE: Valor caso ele seja do tipo acesso
-            if tipo_acesso == "Mensalista":
-                valor_estacionamento = self.valor_mensal
-            elif tipo_acesso == "Evento":
-                valor_estacionamento = self.valor_evento
+            valor_estacionamento = self.calcula_por_tipo_de_acesso(tipo_acesso)
         else:
-            # NOTE: Valor caso ele seja do tipo hora, para esse caso precisamos
-            # saber quantas frações ele gastou dentro do estacionamento
-            fracoes = ceil((hora_final - hora_inicial).seconds / (60 * 15))
-            if hora_inicial > self.entrada_noturna and (hora_final < self.saida_noturna or hora_final > self.entrada_noturna):
-                valor_estacionamento = self.diaria_diurna * (self.desconto_diaria / 100)
-            elif fracoes > 36:
-                valor_estacionamento = self.diaria_diurna
-            elif fracoes >= 4:
-                valor_estacionamento = ((fracoes // 4) * self.hora_cheia_descontada) + (fracoes % 4) * self.valor_fracao
-            else:
-                valor_estacionamento = fracoes * self.valor_fracao
+            valor_estacionamento = self.calcula_por_tipo_de_horas(hora_inicial, hora_final)
 
         self.retorno_contratante += (valor_estacionamento * (self.porcentagem_contratante / 100))
         return valor_estacionamento
+
+    def calcula_por_tipo_de_acesso(self, tipo_acesso):
+        if tipo_acesso == "Mensalista":
+            return self.valor_mensal
+        return self.valor_evento
+
+    def calcula_por_tipo_de_horas(self, hora_inicial, hora_final):
+        fracoes = ceil((hora_final - hora_inicial).seconds / (60 * 15))
+        if hora_inicial > self.entrada_noturna and (hora_final < self.saida_noturna or hora_final > self.entrada_noturna):
+            return self.diaria_diurna * (self.desconto_diaria / 100)
+        elif fracoes > 36:
+            return self.diaria_diurna
+        elif fracoes >= 4:
+            return ((fracoes // 4) * self.hora_cheia_descontada) + (fracoes % 4) * self.valor_fracao
+        return fracoes * self.valor_fracao
