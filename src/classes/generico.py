@@ -1,4 +1,9 @@
 class ObjetoGenerico:
+    QTD_HORA_COMPLETA = 4
+    QTD_NOVE_HORAS = 36
+    MENSALISTA = "Mensalista"
+    TIPO_ACESSO = 'A'
+    TIPO_HORAS = 'H'
 
     def existe_argumentos_em_branco(self, args={}):
         invalidArgs=[]

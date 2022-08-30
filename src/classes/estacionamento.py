@@ -67,15 +67,15 @@ class Estacionamento(ObjetoGenerico):
     @property
     def hora_cheia_descontada(self):
         # NOTE: Função usada para cálculo de uma hora cheia descontada
-        return self.valor_fracao * 4 * ((100 - self.desconto_hora_cheia) / 100)
+        return self.valor_fracao * self.QTD_HORA_COMPLETA * ((100 - self.desconto_hora_cheia) / 100)
 
     @property
     def horarios_ordenados(self):
         # NOTE: Função que ordena todos os carros estacionados (por hora) pelo seu horário de saida
-        return sorted(filter(lambda v: True if v[1][0] == 'H' else False, self.estacionados.items()), key=lambda v: v[1][2])
+        return sorted(filter(lambda v: True if v[1][0] == self.TIPO_HORAS else False, self.estacionados.items()), key=lambda v: v[1][2])
 
     def valida_se_carro_ja_estacionado(self, veiculo):
-        if self.estacionados.get(veiculo.placa) and ((self.estacionados[veiculo.placa] == ('A', veiculo.tipo_acesso)) 
+        if self.estacionados.get(veiculo.placa) and ((self.estacionados[veiculo.placa] == (self.TIPO_ACESSO, veiculo.tipo_acesso)) 
                 or self.estacionados[veiculo.placa][2] > veiculo.hora_inicial):
             raise VagaInvalidaException(f'Veículo com placa {veiculo.placa} já se encontra no estacionamento.')
 
@@ -106,7 +106,7 @@ class Estacionamento(ObjetoGenerico):
         return valor_estacionamento
 
     def calcula_por_tipo_de_acesso(self, tipo_acesso):
-        if tipo_acesso == "Mensalista":
+        if tipo_acesso == self.MENSALISTA:
             return self.valor_mensal
         return self.valor_evento
 
@@ -114,8 +114,8 @@ class Estacionamento(ObjetoGenerico):
         fracoes = ceil((hora_final - hora_inicial).seconds / (60 * 15))
         if hora_inicial > self.entrada_noturna and (hora_final < self.saida_noturna or hora_final > self.entrada_noturna):
             return self.diaria_diurna * (self.desconto_diaria / 100)
-        elif fracoes > 36:
+        elif fracoes > self.QTD_NOVE_HORAS:
             return self.diaria_diurna
-        elif fracoes >= 4:
-            return ((fracoes // 4) * self.hora_cheia_descontada) + (fracoes % 4) * self.valor_fracao
+        elif fracoes >= self.QTD_HORA_COMPLETA:
+            return ((fracoes // self.QTD_HORA_COMPLETA) * self.hora_cheia_descontada) + (fracoes % self.QTD_HORA_COMPLETA) * self.valor_fracao
         return fracoes * self.valor_fracao

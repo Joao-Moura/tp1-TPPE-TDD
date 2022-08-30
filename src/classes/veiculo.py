@@ -24,5 +24,5 @@ class Veiculo(ObjetoGenerico):
 
     def retorna_entrada(self):
         if self.tipo_acesso:
-            return ('A', self.tipo_acesso)
-        return ('H', self.hora_inicial, self.hora_final)
+            return (self.TIPO_ACESSO, self.tipo_acesso)
+        return (self.TIPO_HORAS, self.hora_inicial, self.hora_final)
