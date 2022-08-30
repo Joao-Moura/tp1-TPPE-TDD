@@ -1,9 +1,10 @@
 from math import ceil
 
+from classes.generico import ObjetoGenerico
 from excecoes.excecao import *
 
 
-class Estacionamento:
+class Estacionamento(ObjetoGenerico):
     def __init__(
             self,
             porcentagem_contratante,
@@ -71,20 +72,6 @@ class Estacionamento:
     def horarios_ordenados(self):
         # NOTE: Função que ordena todos os carros estacionados (por hora) pelo seu horário de saida
         return sorted(filter(lambda v: True if v[1][0] == 'H' else False, self.estacionados.items()), key=lambda v: v[1][2])
-
-    def existe_argumentos_em_branco(self, args={}):
-        invalidArgs=[]
-        for arg, val in args.items():
-            if not val:
-                invalidArgs.append(arg)
-        return invalidArgs
-
-    def valida_argumento_positivos(self, args={}):
-        invalidArgs=[]
-        for arg, val in args.items():
-            if val < 0:
-                invalidArgs.append(arg)
-        return invalidArgs
 
     def valida_dados_preenchidos(self, placa, hora_inicial, hora_final, tipo_acesso):
         args_branco = self.existe_argumentos_em_branco({'placa':placa, 'hora_inicial':hora_inicial, 'hora_final':hora_final})
