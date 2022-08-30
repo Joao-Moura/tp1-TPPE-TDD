@@ -67,7 +67,7 @@ class Estacionamento(ObjetoGenerico):
     @property
     def hora_cheia_descontada(self):
         # NOTE: Função usada para cálculo de uma hora cheia descontada
-        return self.valor_fracao * self.QTD_HORA_COMPLETA * ((100 - self.desconto_hora_cheia) / 100)
+        return self.valor_fracao * self.QTD_HORA_COMPLETA * ((self.PORCENTAGEM - self.desconto_hora_cheia) / self.PORCENTAGEM)
 
     @property
     def horarios_ordenados(self):
@@ -102,7 +102,7 @@ class Estacionamento(ObjetoGenerico):
         else:
             valor_estacionamento = self.calcula_por_horas(veiculo.hora_inicial, veiculo.hora_final)
 
-        self.retorno_contratante += (valor_estacionamento * (self.porcentagem_contratante / 100))
+        self.retorno_contratante += (valor_estacionamento * (self.porcentagem_contratante / self.PORCENTAGEM))
         return valor_estacionamento
 
     def calcula_por_tipo_de_acesso(self, tipo_acesso):
@@ -111,9 +111,9 @@ class Estacionamento(ObjetoGenerico):
         return self.valor_evento
 
     def calcula_por_horas(self, hora_inicial, hora_final):
-        fracoes = ceil((hora_final - hora_inicial).seconds / (60 * 15))
+        fracoes = ceil((hora_final - hora_inicial).seconds / self.SECONDS_TO_HOUR)
         if hora_inicial > self.entrada_noturna and (hora_final < self.saida_noturna or hora_final > self.entrada_noturna):
-            return self.diaria_diurna * (self.desconto_diaria / 100)
+            return self.diaria_diurna * (self.desconto_diaria / self.PORCENTAGEM)
         elif fracoes > self.QTD_NOVE_HORAS:
             return self.diaria_diurna
         elif fracoes >= self.QTD_HORA_COMPLETA:

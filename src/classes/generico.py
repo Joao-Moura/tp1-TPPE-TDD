@@ -1,6 +1,8 @@
 class ObjetoGenerico:
     QTD_HORA_COMPLETA = 4
     QTD_NOVE_HORAS = 36
+    PORCENTAGEM = 100
+    SECONDS_TO_HOUR = 900
     MENSALISTA = "Mensalista"
     TIPO_ACESSO = 'A'
     TIPO_HORAS = 'H'
