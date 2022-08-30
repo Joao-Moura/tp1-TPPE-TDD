@@ -86,38 +86,42 @@ class Estacionamento:
                 invalidArgs.append(arg)
         return invalidArgs
 
-    def calcula_preco(self, placa=None, hora_inicial=None, hora_final=None, tipo_acesso=""):
-        valor_estacionamento = 0
-
-        # NOTE: Levanta exceção caso tenha algum placa, hora_inicial ou hora_final não preenchidos
+    def valida_dados_preenchidos(self, placa, hora_inicial, hora_final, tipo_acesso):
         args_branco = self.existe_argumentos_em_branco({'placa':placa, 'hora_inicial':hora_inicial, 'hora_final':hora_final})
         if args_branco and not tipo_acesso:
             raise DescricaoEmBrancoException(f'O(s) seguinte(s) argumento(s) está(ão) em branco: {args_branco}.')
 
-        # NOTE: Levanta exceção, caso sejam preenchidos as horas e o tipo de acesso
+    def valida_hora_ou_acesso(self, hora_inicial, hora_final, tipo_acesso):
         if hora_inicial and hora_inicial and tipo_acesso:
             raise MultiplosArgumentosException('Impossível utilizar tipo de acesso em conjunto com horas.')
 
-        # NOTE: Se o carro já estiver estacionado e seu tipo for de acesso
-        # ou se seus horários colidirem, levanta exceção
+    def valida_se_carro_ja_estacionado(self, placa, hora_inicial, tipo_acesso):
         if self.estacionados.get(placa) and ((self.estacionados[placa] == ('A', tipo_acesso)) or self.estacionados[placa][2] > hora_inicial):
             raise VagaInvalidaException(f'Veículo com placa {placa} já se encontra no estacionamento.')
 
+    def valida_capacidade_e_libera(self, hora_inicial, tipo_acesso):
         if self.capacidade == len(self.estacionados):
-            # NOTE: Se o seu tipo for de acesso ou se o horário do primeiro carro que
-            # for sair do estacionamento colidir com o de entrada, levanta exceção.
-            # Se não, apaga ele do estacionamento e adiciona o novo
             if tipo_acesso or hora_inicial < self.horarios_ordenados[0][1][2]:
                 raise VagaInvalidaException('Estacionamento lotado.')
             else:
                 del self.estacionados[self.horarios_ordenados[0][0]]
 
+    def valida_atributos(self, placa, hora_inicial, hora_final, tipo_acesso):
+        self.valida_dados_preenchidos(placa, hora_inicial, hora_final, tipo_acesso)
+        self.valida_hora_ou_acesso(hora_inicial, hora_final, tipo_acesso)
+        self.valida_se_carro_ja_estacionado(placa, hora_inicial, tipo_acesso)
+        self.valida_capacidade_e_libera(hora_inicial, tipo_acesso)
+
+    def calcula_preco(self, placa=None, hora_inicial=None, hora_final=None, tipo_acesso=""):
+        self.valida_atributos(placa, hora_inicial, hora_final, tipo_acesso)
+
         self.estacionados[placa] = ('A', tipo_acesso) if tipo_acesso else ('H', hora_inicial, hora_final)
+        valor_estacionamento = 0
 
         if tipo_acesso:
             valor_estacionamento = self.calcula_por_tipo_de_acesso(tipo_acesso)
         else:
-            valor_estacionamento = self.calcula_por_tipo_de_horas(hora_inicial, hora_final)
+            valor_estacionamento = self.calcula_por_horas(hora_inicial, hora_final)
 
         self.retorno_contratante += (valor_estacionamento * (self.porcentagem_contratante / 100))
         return valor_estacionamento
@@ -127,7 +131,7 @@ class Estacionamento:
             return self.valor_mensal
         return self.valor_evento
 
-    def calcula_por_tipo_de_horas(self, hora_inicial, hora_final):
+    def calcula_por_horas(self, hora_inicial, hora_final):
         fracoes = ceil((hora_final - hora_inicial).seconds / (60 * 15))
         if hora_inicial > self.entrada_noturna and (hora_final < self.saida_noturna or hora_final > self.entrada_noturna):
             return self.diaria_diurna * (self.desconto_diaria / 100)
