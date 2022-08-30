@@ -1,6 +1,7 @@
 from math import ceil
 
 from classes.generico import ObjetoGenerico
+from classes.veiculo import Veiculo
 from excecoes.excecao import *
 
 
@@ -73,42 +74,33 @@ class Estacionamento(ObjetoGenerico):
         # NOTE: Função que ordena todos os carros estacionados (por hora) pelo seu horário de saida
         return sorted(filter(lambda v: True if v[1][0] == 'H' else False, self.estacionados.items()), key=lambda v: v[1][2])
 
-    def valida_dados_preenchidos(self, placa, hora_inicial, hora_final, tipo_acesso):
-        args_branco = self.existe_argumentos_em_branco({'placa':placa, 'hora_inicial':hora_inicial, 'hora_final':hora_final})
-        if args_branco and not tipo_acesso:
-            raise DescricaoEmBrancoException(f'O(s) seguinte(s) argumento(s) está(ão) em branco: {args_branco}.')
+    def valida_se_carro_ja_estacionado(self, veiculo):
+        if self.estacionados.get(veiculo.placa) and ((self.estacionados[veiculo.placa] == ('A', veiculo.tipo_acesso)) 
+                or self.estacionados[veiculo.placa][2] > veiculo.hora_inicial):
+            raise VagaInvalidaException(f'Veículo com placa {veiculo.placa} já se encontra no estacionamento.')
 
-    def valida_hora_ou_acesso(self, hora_inicial, hora_final, tipo_acesso):
-        if hora_inicial and hora_inicial and tipo_acesso:
-            raise MultiplosArgumentosException('Impossível utilizar tipo de acesso em conjunto com horas.')
-
-    def valida_se_carro_ja_estacionado(self, placa, hora_inicial, tipo_acesso):
-        if self.estacionados.get(placa) and ((self.estacionados[placa] == ('A', tipo_acesso)) or self.estacionados[placa][2] > hora_inicial):
-            raise VagaInvalidaException(f'Veículo com placa {placa} já se encontra no estacionamento.')
-
-    def valida_capacidade_e_libera(self, hora_inicial, tipo_acesso):
+    def valida_capacidade_e_libera(self, veiculo):
         if self.capacidade == len(self.estacionados):
-            if tipo_acesso or hora_inicial < self.horarios_ordenados[0][1][2]:
+            if veiculo.tipo_acesso or veiculo.hora_inicial < self.horarios_ordenados[0][1][2]:
                 raise VagaInvalidaException('Estacionamento lotado.')
             else:
                 del self.estacionados[self.horarios_ordenados[0][0]]
 
-    def valida_atributos(self, placa, hora_inicial, hora_final, tipo_acesso):
-        self.valida_dados_preenchidos(placa, hora_inicial, hora_final, tipo_acesso)
-        self.valida_hora_ou_acesso(hora_inicial, hora_final, tipo_acesso)
-        self.valida_se_carro_ja_estacionado(placa, hora_inicial, tipo_acesso)
-        self.valida_capacidade_e_libera(hora_inicial, tipo_acesso)
+    def valida_atributos(self, veiculo):
+        self.valida_se_carro_ja_estacionado(veiculo)
+        self.valida_capacidade_e_libera(veiculo)
 
     def calcula_preco(self, placa=None, hora_inicial=None, hora_final=None, tipo_acesso=""):
-        self.valida_atributos(placa, hora_inicial, hora_final, tipo_acesso)
+        veiculo = Veiculo(placa, hora_inicial, hora_final, tipo_acesso)
+        self.valida_atributos(veiculo)
 
-        self.estacionados[placa] = ('A', tipo_acesso) if tipo_acesso else ('H', hora_inicial, hora_final)
+        self.estacionados[veiculo.placa] = veiculo.retorna_entrada()
         valor_estacionamento = 0
 
-        if tipo_acesso:
-            valor_estacionamento = self.calcula_por_tipo_de_acesso(tipo_acesso)
+        if veiculo.tipo_acesso:
+            valor_estacionamento = self.calcula_por_tipo_de_acesso(veiculo.tipo_acesso)
         else:
-            valor_estacionamento = self.calcula_por_horas(hora_inicial, hora_final)
+            valor_estacionamento = self.calcula_por_horas(veiculo.hora_inicial, veiculo.hora_final)
 
         self.retorno_contratante += (valor_estacionamento * (self.porcentagem_contratante / 100))
         return valor_estacionamento
