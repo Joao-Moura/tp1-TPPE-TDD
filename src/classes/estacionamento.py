@@ -66,12 +66,24 @@ class Estacionamento(ObjetoGenerico):
 
     @property
     def hora_cheia_descontada(self):
-        # NOTE: Função usada para cálculo de uma hora cheia descontada
+        """
+        Função responsável pelo cálculo de uma hora cheia descontada, de acordo
+        com valor da fração e o desconto de uma hora cheia.
+
+        Returns:
+            float: O valor da hora calcula
+        """
         return self.valor_fracao * self.QTD_HORA_COMPLETA * ((self.PORCENTAGEM - self.desconto_hora_cheia) / self.PORCENTAGEM)
 
     @property
     def horarios_ordenados(self):
-        # NOTE: Função que ordena todos os carros estacionados (por hora) pelo seu horário de saida
+        """
+        Função responsável por ordenar pelo horário de saida, os carros do tipo
+        TIPO_HORAS que se encontram no vetor de estacionados.
+
+        Returns:
+            list: Lista ordenada de tuplas dos carros estacionados
+        """
         return sorted(filter(lambda v: True if v[1][0] == self.TIPO_HORAS else False, self.estacionados.items()), key=lambda v: v[1][2])
 
     def valida_se_carro_ja_estacionado(self, veiculo):
